@@ -20,9 +20,6 @@ def index():
     if request.method == 'POST':
         cuisine_entry = str.title(request.form['cuisine'])
         exists = Cuisine.query.filter_by(cuisine=cuisine_entry).first()
-        if exists is not None:
-            message = {'error': 'Generate or add a cuisine by pressing one of the buttons below'}
-            return render_template('index.html', message=message)
         
         new_cuisine = Cuisine(cuisine=cuisine_entry)
         if 'add' in request.form:
