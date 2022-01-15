@@ -19,10 +19,12 @@ class Cuisine(db.Model):
 def index():
     if request.method == 'POST':
         cuisine_entry = str.title(request.form['cuisine'])
-        exists = Cuisine.query.filter_by(cuisine=cuisine_entry).first()
+        if not cuisine_entry:
+            return redirect('/')
         
         new_cuisine = Cuisine(cuisine=cuisine_entry)
-        if 'add' in request.form:
+        print(new_cuisine)
+        if 'add' in request.form and new_cuisine is not None:
             try:
                 # commit to db, redirect to main page
                 db.session.add(new_cuisine)
@@ -35,10 +37,14 @@ def index():
             chosen_cuisine = random.choice(Cuisine.query.all())
             return render_template('index.html', message=chosen_cuisine)
     else:
-        return render_template('index.html')
+        # GET
+        # Grab the first cuisine so that we have something to display
+        # upon loading the webpage 
+        default_cuisine = Cuisine.query.get(1)
+        return render_template('index.html', message=default_cuisine)
 
 
 if __name__ == "__main__":
     # setting debug to True to show any errors
     # on web page
-    app.run(debug=True)
+    app.run(debug=False)
