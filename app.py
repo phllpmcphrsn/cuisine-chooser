@@ -1,9 +1,12 @@
-from flask import Flask, render_template, url_for, request, redirect
+from flask import Flask, render_template, url_for, request, redirect, flash
 from flask_sqlalchemy import SQLAlchemy
 import random 
+import os
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///cuisine.db'  # 3 slashes so that it'll reside in our pwd
+# grab FLASK_APP_SETTINGS; otherwise use DevConfig
+env_config = os.getenv("FLASK_APP_SETTINGS", "config.DevelopmentConfig") 
+app.config.from_object(env_config)
 db = SQLAlchemy(app)
 
 
@@ -23,15 +26,15 @@ def index():
             return redirect('/')
         
         new_cuisine = Cuisine(cuisine=cuisine_entry)
-        print(new_cuisine)
         if 'add' in request.form and new_cuisine is not None:
             try:
                 # commit to db, redirect to main page
                 db.session.add(new_cuisine)
                 db.session.commit()
-                return redirect('/')
             except Exception as e:
                 return 'There was an issue adding your task', e
+            else:
+                return render_template('index.html')
         elif 'generate' in request.form:
             # Choose cuisine from database
             chosen_cuisine = random.choice(Cuisine.query.all())
